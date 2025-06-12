@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
+import "./styles/globals.css";
+import { Providers } from "../providers/providers";
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../lib/auth"; // adjust the path to your NextAuth config
