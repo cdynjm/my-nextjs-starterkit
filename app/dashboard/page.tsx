@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 export default function DashboardPage() {
   const { data: session } = useSession();
 
-  const graphQLClient = getGraphQLClient("api/users", session?.token);
+  const graphQLClient = getGraphQLClient("/api/users", session?.token);
 
   const fetchUsers = async (): Promise<User[]> => {
     const data = await graphQLClient.request<{ users: User[] }>(`
