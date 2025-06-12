@@ -34,7 +34,8 @@ export const authOptions: NextAuthOptions = {
           id: user.id.toString(),
           name: user.name,
           email: user.email,
-          role: user.role ?? 0, // Ensure role is always a number
+          role: user.role ?? 0,
+          created_at: user.created_at
         };
       },
     }),
