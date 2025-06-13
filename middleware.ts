@@ -2,37 +2,51 @@ import { withAuth } from "next-auth/middleware";
 import type { NextRequestWithAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+// Role-based route access map
+const roleAccessMap: Record<number, string[]> = {
+  1: ["/admin"], // Admin
+  2: ["/user"],  // Regular User
+};
+
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {
-    const role = req.nextauth.token?.role;
+    const token = req.nextauth.token;
     const pathname = req.nextUrl.pathname;
 
-    // Protect dashboard route for admin only
-    if (pathname === "/dashboard") {
-      if (role !== 1) {
-        return NextResponse.redirect(new URL("/unauthorized", req.url));
+    if (pathname === "/" || pathname === "/register") {
+      if (token) {
+        const role = token.role as number;
+        if (role === 1) return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+        if (role === 2) return NextResponse.redirect(new URL("/user/dashboard", req.url));
       }
+      return NextResponse.next();
     }
 
-    // Guest-only route: if authenticated user tries to access login page (/)
-    if (pathname === "/") {
-      if (req.nextauth.token) {
-        // Redirect authenticated user to dashboard (or any other page)
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
+    if (!token || typeof token.role !== "number") {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    // Allow all other requests
+    const role = token.role;
+    const allowedPrefixes = roleAccessMap[role] || [];
+    const isAllowed = allowedPrefixes.some((prefix) => pathname.startsWith(prefix));
+
+    if (!isAllowed) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
+    }
+
     return NextResponse.next();
   },
   {
     callbacks: {
-      // First layer: only allow if token exists (authenticated) for protected routes
-      authorized: ({ token }) => !!token,
+      authorized: () => true,
     },
   }
 );
 
+// Matcher should include both guest and protected routes
 export const config = {
-  matcher: ["/dashboard", "/admin/:path*", "/user/:path*"], // include "/" for guest check
+  matcher: [
+    "/", "/register", //GUEST ROUTES
+    "/admin/:path*", "/user/:path*" // AUTHENTICATED ROUTES
+  ],
 };

@@ -32,7 +32,7 @@ export default function DashboardPage() {
   return (
     <section className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Welcome to Dashboard</h1>
+        <h1 className="text-2xl font-bold">Welcome to Admin Dashboard</h1>
         <Button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="text-white"
