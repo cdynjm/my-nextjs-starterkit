@@ -55,10 +55,15 @@ export default function RegisterPage() {
 
   const validateForm = () => {
     const errors: { name?: string; email?: string; password?: string } = {};
-    if (!form.name.trim()) errors.name = "Name is required.";
-    if (!form.email.trim()) errors.email = "Email is required.";
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errors.email = "Email is invalid.";
-    if (!form.password.trim()) errors.password = "Password is required.";
+    if (!form.name.trim()) 
+      errors.name = "Name is required.";
+    if (!form.email.trim()) 
+      errors.email = "Email is required.";
+    else if (!/\S+@\S+\.\S+/.test(form.email)) 
+      errors.email = "Email is invalid.";
+    if (!form.password.trim()) 
+      errors.password = "Password is required.";
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -188,7 +193,7 @@ export default function RegisterPage() {
           <a
             href="https://jemcdyn.vercel.app/"
             target="_blank"
-            className="text-[12px] underline underline-offset-4 text-blue-500"
+            className="text-[12px]"
             rel="noreferrer"
           >
             https://jemcdyn.vercel.app/

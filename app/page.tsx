@@ -51,7 +51,10 @@ function Spinner() {
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
+  const [formErrors, setFormErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -60,12 +63,9 @@ export default function LoginPage() {
 
   const validateForm = () => {
     const errors: { email?: string; password?: string } = {};
-    if (!form.email.trim()) {
-      errors.email = "Email is required.";
-    }
-    if (!form.password.trim()) {
-      errors.password = "Password is required.";
-    }
+    if (!form.email.trim()) errors.email = "Email is required.";
+    if (!form.password.trim()) errors.password = "Password is required.";
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -136,9 +136,13 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
                   aria-invalid={!!formErrors.password}
-                  aria-describedby={formErrors.password ? "password-error" : undefined}
+                  aria-describedby={
+                    formErrors.password ? "password-error" : undefined
+                  }
                   className={formErrors.password ? "border-red-600" : ""}
                 />
                 <button
@@ -147,7 +151,11 @@ export default function LoginPage() {
                   className="absolute right-3 top-[30px] text-sm text-gray-500 hover:text-gray-700 focus:outline-none select-none"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-auto"/> : <Eye className="w-5 h-auto"/>}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-auto" />
+                  ) : (
+                    <Eye className="w-5 h-auto" />
+                  )}
                 </button>
                 {formErrors.password && (
                   <p id="password-error" className="text-sm text-red-600 mt-1">
@@ -161,18 +169,28 @@ export default function LoginPage() {
               <p className="mb-4 text-sm text-red-600">{loginError}</p>
             )}
 
-            <Button type="submit" className="w-full flex items-center justify-center" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full flex items-center justify-center"
+              disabled={loading}
+            >
               {loading && <Spinner />}
               {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
         </CardContent>
-         <CardFooter className="text-center flex flex-col justify-center">
-            <small className="font-semibold flex items-center gap-2">
-              <Image src="/logo.png" width={24} height={24} alt="Logo" priority/>
-              JEM CDYN, Dev.
-            </small>
-            <a href="https://jemcdyn.vercel.app/" target="_blank" className="text-[12px] underline underline-offset-4 text-blue-500">https://jemcdyn.vercel.app/</a>
+        <CardFooter className="text-center flex flex-col justify-center">
+          <small className="font-semibold flex items-center gap-2">
+            <Image src="/logo.png" width={24} height={24} alt="Logo" priority />
+            JEM CDYN, Dev.
+          </small>
+          <a
+            href="https://jemcdyn.vercel.app/"
+            target="_blank"
+            className="text-[12px]"
+          >
+            https://jemcdyn.vercel.app/
+          </a>
         </CardFooter>
       </Card>
     </div>
