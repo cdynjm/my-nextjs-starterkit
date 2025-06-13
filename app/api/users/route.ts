@@ -1,8 +1,9 @@
-// app/api/graphql/users/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { buildSchema, graphql as graphqlExec } from "graphql";
 import { db } from "@/lib/db";
 import { usersTable } from "@/lib/db/schema";
+
+import { encrypt, generateKey } from "@/lib/crypto";
 
 function setCorsHeaders(res: NextResponse) {
   const allowedOrigin = process.env.NEXT_PUBLIC_API_BASE_URL as string;
@@ -22,6 +23,7 @@ export async function OPTIONS() {
 const schema = buildSchema(`
   type User {
     id: Int
+    encrypted_id: String
     name: String
     email: String
     role: String
@@ -33,12 +35,21 @@ const schema = buildSchema(`
 `);
 
 const rootValue = {
-  users: async () => await db.select().from(usersTable),
+  users: async () => {
+    const key = await generateKey();
+    const users = await db.select().from(usersTable);
+
+    // Encrypt each user's id and add encrypted_id field
+    return Promise.all(
+      users.map(async (user) => {
+        const encryptedId = await encrypt(user.id.toString(), key);
+        return { ...user, encrypted_id: encryptedId };
+      })
+    );
+  },
 };
 
 export async function POST(req: NextRequest) {
-  
-
   const { query, variables } = await req.json();
 
   const result = await graphqlExec({

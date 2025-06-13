@@ -1,5 +1,6 @@
 export interface User {
   id: number;
+  encrypted_id: string;
   name: string;
   email: string;
   role: number;

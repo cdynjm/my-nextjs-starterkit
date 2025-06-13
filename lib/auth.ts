@@ -5,6 +5,11 @@ import { usersTable } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
+import {  
+  generateKey,
+  encrypt
+} from "./crypto";
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -54,7 +59,11 @@ export const authOptions: NextAuthOptions = {
   },
   async session({ session, token }) {
     if (session.user) {
-      session.user.id = token.id as string;
+
+      const key = await generateKey(); 
+      const encrypted = await encrypt(token.id as string, key);
+
+      session.user.id = encrypted;
       session.user.name = token.name as string;
       session.user.email = token.email as string;
       session.user.role = token.role as number;
