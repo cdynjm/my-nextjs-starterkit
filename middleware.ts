@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 
 // Role-based route access map
 const roleAccessMap: Record<number, string[]> = {
-  1: ["/admin"], // Admin
-  2: ["/user"],  // Regular User
+  1: ["/admin", "/api/admin"], // Admin
+  2: ["/user", "/api/user"],  // Regular User
 };
 
 export default withAuth(
@@ -47,6 +47,7 @@ export default withAuth(
 export const config = {
   matcher: [
     "/", "/register", //GUEST ROUTES
-    "/admin/:path*", "/user/:path*" // AUTHENTICATED ROUTES
+    "/admin/:path*", "/user/:path*", // AUTHENTICATED ROUTES
+    "/api/admin/:path*", "/api/user/:path*" // API ROUTES FOR AUTHENTICATED USERS
   ],
 };

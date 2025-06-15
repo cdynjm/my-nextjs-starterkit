@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button";
 export default function DashboardPage() {
   const { data: session } = useSession();
 
-  const graphQLClient = getGraphQLClient("/api/users", session?.token);
+  const graphQLClient = getGraphQLClient("/api/user/graphql", session?.token);
 
   const fetchUsers = async (): Promise<User[]> => {
     const data = await graphQLClient.request<{ users: User[] }>(`
       query {
         users {
-          id
+          encrypted_id
           name
           email
         }
@@ -34,7 +34,10 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Welcome to User Dashboard</h1>
         <Button
-          onClick={() => signOut({ callbackUrl: "/" })}
+          onClick={(e) => {
+            e.preventDefault();
+            signOut({ callbackUrl: "/" });
+          }}
           className="text-white"
           variant="destructive"
         >
@@ -54,8 +57,7 @@ export default function DashboardPage() {
 
       <ul className="mt-2">
         {users?.map((user) => (
-          <li key={user.id} className="border-b py-2">
-           
+          <li  key={user.encrypted_id} className="border-b py-2">
             {user.name} - {user.email}
           </li>
         ))}

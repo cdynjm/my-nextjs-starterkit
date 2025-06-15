@@ -26,7 +26,7 @@ const schema = buildSchema(`
     encrypted_id: String
     name: String
     email: String
-    role: String
+    role: Int
   }
 
   type Query {
@@ -35,11 +35,11 @@ const schema = buildSchema(`
 `);
 
 const rootValue = {
+
   users: async () => {
     const key = await generateKey();
     const users = await db.select().from(usersTable);
 
-    // Encrypt each user's id and add encrypted_id field
     return Promise.all(
       users.map(async (user) => {
         const encryptedId = await encrypt(user.id.toString(), key);
@@ -47,6 +47,7 @@ const rootValue = {
       })
     );
   },
+
 };
 
 export async function POST(req: NextRequest) {
