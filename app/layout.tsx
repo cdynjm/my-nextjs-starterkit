@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./styles/globals.css";
+import "./globals.css";
 import { Providers } from "../providers/providers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../lib/auth";
 import { NProgressProvider } from "@/providers/NProgressProvider";
+import { AuthenticatedLayout } from "./authenticatedLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,11 +31,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <link rel="shortcut icon" href="/favicon.png?new" type="image/png" />
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <link rel="shortcut icon" href="/favicon.png" type="image/png" />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}>
         <Providers session={session}>
           <NProgressProvider />
-          {children}
+          {/* Use client side session-aware layout */}
+          <AuthenticatedLayout>{children}</AuthenticatedLayout>
         </Providers>
       </body>
     </html>
