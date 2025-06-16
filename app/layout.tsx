@@ -4,8 +4,8 @@ import "./globals.css";
 import { Providers } from "../providers/providers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../lib/auth";
-import { NProgressProvider } from "@/providers/NProgressProvider";
-import { AuthenticatedLayout } from "./authenticated";
+import { NProgressProvider } from "@/providers/nprogress-provider";
+import { AuthenticatedLayout } from "./authenticated-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

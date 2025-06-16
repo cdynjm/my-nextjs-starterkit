@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
-import { PageTitleProvider } from "@/components/PageTitleContext";
+import { PageTitleProvider } from "@/components/page-title-context";
 import { Toaster } from "sonner";
 
 export function AuthenticatedLayout({

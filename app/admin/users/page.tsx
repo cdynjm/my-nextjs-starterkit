@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { usePageTitle } from "@/components/PageTitleContext";
+import { usePageTitle } from "@/components/page-title-context";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 
 import { Plus, Edit, Trash, Loader2 } from "lucide-react";
-import { SkeletonLoader } from "@/components/SkeletonLoader";
+import { SkeletonLoader } from "@/components/skeleton-loader";
 
 import {
   Dialog,

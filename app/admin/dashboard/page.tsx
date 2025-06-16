@@ -1,6 +1,6 @@
 "use client";
 
-import { usePageTitle } from "@/components/PageTitleContext";
+import { usePageTitle } from "@/components/page-title-context";
 import { useEffect } from "react";
 import { Users, Folder, FileText } from "lucide-react";
 

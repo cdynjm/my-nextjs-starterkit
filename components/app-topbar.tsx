@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { UserCircle2 } from "lucide-react";
-import { usePageTitle } from "./PageTitleContext";
+import { usePageTitle } from "./page-title-context";
 import Link from "next/link";
 
 export function AppTopbar() {

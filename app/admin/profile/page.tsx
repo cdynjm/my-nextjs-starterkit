@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useSession } from "next-auth/react";
 
-import { usePageTitle } from "@/components/PageTitleContext";
+import { usePageTitle } from "@/components/page-title-context";
 import { getGraphQLClient } from "@/lib/graphql-client";
 import { gql } from "graphql-request";
 
