@@ -1,3 +1,7 @@
+import crypto from "crypto";
+
+const secret = process.env.CRYPTO_SECRET_KEY;
+
 function encode(text: string): Uint8Array {
   return new TextEncoder().encode(text);
 }
@@ -6,13 +10,17 @@ function decode(buffer: ArrayBuffer): string {
   return new TextDecoder().decode(buffer);
 }
 
-export async function generateKey(): Promise<CryptoKey> {
-  return crypto.subtle.generateKey(
-    { name: "AES-GCM", length: 256 },
-    true,
-    ["encrypt", "decrypt"]
+export async function generateKey() {
+  const keyBuffer = crypto.createHash("sha256").update(secret as string).digest();
+  return crypto.subtle.importKey(
+    "raw",
+    keyBuffer,
+    "AES-GCM",
+    false,
+    ["decrypt", "encrypt"]
   );
 }
+
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)));
