@@ -9,14 +9,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email } = body;
 
-    const result = await db
-      .insert(usersTable)
-      .values({
-        name,
-        email,
-      });
+    await db.insert(usersTable).values({
+      name,
+      email,
+    });
 
-    return NextResponse.json({ user: result }, { status: 201 });
+    return NextResponse.json({ status: 200 });
   } catch (error) {
     console.error("Failed to insert user", error);
     return NextResponse.json(
@@ -28,18 +26,17 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    
     const body = await request.json();
-    const {encryptedID, name, email } = body;
+    const { encryptedID, name, email } = body;
     const key = await generateKey();
     const decryptedID = await decrypt(encryptedID, key);
 
-    const result = await db
-    .update(usersTable)
-    .set({name: name, email: email})
-    .where(eq(usersTable.id, Number(decryptedID)))
+    await db
+      .update(usersTable)
+      .set({ name: name, email: email })
+      .where(eq(usersTable.id, Number(decryptedID)));
 
-    return NextResponse.json({ user: result }, { status: 201 });
+    return NextResponse.json({ status: 200 });
   } catch (error) {
     console.error("Failed to insert user", error);
     return NextResponse.json(
@@ -51,17 +48,14 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    
     const body = await request.json();
-    const {encryptedID } = body;
+    const { encryptedID } = body;
     const key = await generateKey();
     const decryptedID = await decrypt(encryptedID, key);
-    
-    const result = await db
-    .delete(usersTable)
-    .where(eq(usersTable.id, Number(decryptedID)))
 
-    return NextResponse.json({ user: result }, { status: 201 });
+    await db.delete(usersTable).where(eq(usersTable.id, Number(decryptedID)));
+
+    return NextResponse.json({ status: 200 });
   } catch (error) {
     console.error("Failed to insert user", error);
     return NextResponse.json(
