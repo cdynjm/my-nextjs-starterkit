@@ -122,7 +122,7 @@ export default function UsersPage() {
       setIsCreateOpen(false);
       refetch();
 
-      toast("Create successfully", {
+      toast("Created successfully", {
         description: "User information has been created",
         position: "top-right",
         action: {

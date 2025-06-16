@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserCircle2 } from "lucide-react";
 import { usePageTitle } from "./PageTitleContext";
+import Link from "next/link";
 
 export function AppTopbar() {
   const { data: session } = useSession();
@@ -48,6 +49,11 @@ export function AppTopbar() {
         <DropdownMenuContent className="w-40 mt-2">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="cursor-pointer"
+          >
+            <Link href="/admin/profile">Profile</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => signOut({ callbackUrl: "/" })}
             className="cursor-pointer"

@@ -108,14 +108,11 @@ export function AppSidebar() {
                 align="start"
                 className="bg-white rounded-md shadow-md p-2 w-48"
               >
-                <DropdownMenuItem className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer">
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer">
-                  Billing
+                <DropdownMenuItem className="px-3 py-2 text-sm rounded hover:bg-gray-100 cursor-pointer">
+                 <Link href="/admin/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer"
+                  className="px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
                   onClick={() => signOut()}
                 >
                   Sign out
