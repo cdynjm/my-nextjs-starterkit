@@ -62,7 +62,7 @@ export default function UsersPage() {
     return () => setTitle("");
   }, [setTitle]);
 
-  const graphQLClient = getGraphQLClient("/api/admin/graphql/users/", session?.token);
+  const graphQLClient = getGraphQLClient("/graphql/admin/users/", session?.token);
 
   const fetchUsers = async (): Promise<User[]> => {
     const data = await graphQLClient.request<{ getUsers: User[] }>(gql`
