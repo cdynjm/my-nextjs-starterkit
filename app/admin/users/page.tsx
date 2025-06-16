@@ -4,10 +4,10 @@ import { useSession } from "next-auth/react";
 import { usePageTitle } from "@/components/PageTitleContext";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import axios from "axios";
 
 import { useQuery } from "@tanstack/react-query";
 import { getGraphQLClient } from "@/lib/graphql-client";
+import { gql } from "graphql-request";
 import { User } from "@/types/user";
 
 import { Button } from "@/components/ui/button";
@@ -62,19 +62,19 @@ export default function UsersPage() {
     return () => setTitle("");
   }, [setTitle]);
 
-  const graphQLClient = getGraphQLClient("/api/admin/graphql", session?.token);
+  const graphQLClient = getGraphQLClient("/api/admin/graphql/users/", session?.token);
 
   const fetchUsers = async (): Promise<User[]> => {
-    const data = await graphQLClient.request<{ users: User[] }>(`
+    const data = await graphQLClient.request<{ getUsers: User[] }>(gql`
       query {
-        users {
+        getUsers {
           encrypted_id
           name
           email
         }
       }
     `);
-    return data.users;
+    return data.getUsers;
   };
 
   const {
@@ -94,12 +94,25 @@ export default function UsersPage() {
     register: registerCreate,
     handleSubmit: handleCreateSubmit,
     reset: resetCreateForm,
-    formState: { errors: createErrors, isSubmitting: isCreateProcessing},
+    formState: { errors: createErrors, isSubmitting: isCreateProcessing },
   } = useForm<CreateUserForm>();
 
   const onCreateSubmit: SubmitHandler<CreateUserForm> = async (data) => {
     try {
-      await axios.post("/api/admin/users", data);
+      const mutation = gql`
+        mutation ($name: String, $email: String) {
+          createUser(name: $name, email: $email) {
+            name
+            email
+          }
+        }
+      `;
+
+      await graphQLClient.request(mutation, {
+        name: data.name,
+        email: data.email,
+      });
+
       resetCreateForm();
       setIsCreateOpen(false);
       refetch();
@@ -138,7 +151,22 @@ export default function UsersPage() {
   const onUpdateSubmit: SubmitHandler<UpdateUserForm> = async (data) => {
     if (!editUser) return;
     try {
-      await axios.patch(`/api/admin/users`, data);
+     const mutation = gql`
+        mutation ($encrypted_id: String, $name: String, $email: String) {
+          updateUser(encrypted_id: $encrypted_id, name: $name, email: $email) {
+            encrypted_id
+            name
+            email
+          }
+        }
+      `;
+
+      await graphQLClient.request(mutation, {
+        encrypted_id: data.encryptedID,
+        name: data.name,
+        email: data.email,
+      });
+
       resetUpdateForm();
       setEditUser(null);
       refetch();
@@ -164,7 +192,7 @@ export default function UsersPage() {
     handleSubmit: handleDeleteSubmit,
     reset: resetDeleteForm,
     setValue: setDeleteValue,
-    formState: {isSubmitting: isDeleteProcessing}
+    formState: { isSubmitting: isDeleteProcessing },
   } = useForm<DeleteUserForm>();
 
   useEffect(() => {
@@ -178,7 +206,18 @@ export default function UsersPage() {
   const onDeleteSubmit: SubmitHandler<DeleteUserForm> = async (data) => {
     if (!deleteUser) return;
     try {
-      await axios.delete(`/api/admin/users`, { data });
+      const mutation = gql`
+        mutation ($encrypted_id: String) {
+          deleteUser(encrypted_id: $encrypted_id) {
+            encrypted_id
+          }
+        }
+      `;
+
+      await graphQLClient.request(mutation, {
+        encrypted_id: data.encryptedID,
+      });
+
       resetDeleteForm();
       setDeleteUser(null);
       refetch();
@@ -391,7 +430,11 @@ export default function UsersPage() {
                   Cancel
                 </Button>
               </DialogClose>
-               <Button type="submit" variant="destructive" disabled={isDeleteProcessing}>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={isDeleteProcessing}
+              >
                 {isDeleteProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
