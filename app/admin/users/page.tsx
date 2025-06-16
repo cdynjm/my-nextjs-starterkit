@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Plus, Edit, Trash } from "lucide-react";
+import { Plus, Edit, Trash, Loader2 } from "lucide-react";
 import { SkeletonLoader } from "@/components/SkeletonLoader";
 
 import {
@@ -94,7 +94,7 @@ export default function UsersPage() {
     register: registerCreate,
     handleSubmit: handleCreateSubmit,
     reset: resetCreateForm,
-    formState: { errors: createErrors },
+    formState: { errors: createErrors, isSubmitting: isCreateProcessing},
   } = useForm<CreateUserForm>();
 
   const onCreateSubmit: SubmitHandler<CreateUserForm> = async (data) => {
@@ -112,7 +112,6 @@ export default function UsersPage() {
           onClick: () => {},
         },
       });
-
     } catch (error) {
       console.error("Create user failed", error);
     }
@@ -123,7 +122,7 @@ export default function UsersPage() {
     handleSubmit: handleUpdateSubmit,
     reset: resetUpdateForm,
     setValue: setUpdateValue,
-    formState: { errors: updateErrors },
+    formState: { errors: updateErrors, isSubmitting: isUpdateProcessing },
   } = useForm<UpdateUserForm>();
 
   useEffect(() => {
@@ -152,7 +151,6 @@ export default function UsersPage() {
           onClick: () => {},
         },
       });
-
     } catch (error) {
       console.error("Update user failed", error);
     }
@@ -166,6 +164,7 @@ export default function UsersPage() {
     handleSubmit: handleDeleteSubmit,
     reset: resetDeleteForm,
     setValue: setDeleteValue,
+    formState: {isSubmitting: isDeleteProcessing}
   } = useForm<DeleteUserForm>();
 
   useEffect(() => {
@@ -192,7 +191,6 @@ export default function UsersPage() {
           onClick: () => {},
         },
       });
-
     } catch (error) {
       console.error("Delete user failed", error);
     }
@@ -212,7 +210,7 @@ export default function UsersPage() {
           if (!open) resetCreateForm();
         }}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[150vh] overflow-y-auto">
           <form onSubmit={handleCreateSubmit(onCreateSubmit)}>
             <DialogHeader>
               <DialogTitle>Create User</DialogTitle>
@@ -280,7 +278,16 @@ export default function UsersPage() {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">Create</Button>
+              <Button type="submit" disabled={isCreateProcessing}>
+                {isCreateProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -291,7 +298,7 @@ export default function UsersPage() {
         open={!!editUser}
         onOpenChange={(open) => !open && setEditUser(null)}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[150vh] overflow-y-auto">
           <form onSubmit={handleUpdateSubmit(onUpdateSubmit)}>
             <DialogHeader>
               <DialogTitle>Update User</DialogTitle>
@@ -344,7 +351,16 @@ export default function UsersPage() {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isUpdateProcessing}>
+                {isUpdateProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -375,8 +391,15 @@ export default function UsersPage() {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" variant="destructive">
-                Delete
+               <Button type="submit" variant="destructive" disabled={isDeleteProcessing}>
+                {isDeleteProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete"
+                )}
               </Button>
             </DialogFooter>
           </form>
@@ -398,50 +421,52 @@ export default function UsersPage() {
       </div>
 
       {/* Users Table */}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">#</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isPending ? (
+      <div className="grid grid-cols-1">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={4}>
-                <SkeletonLoader />
-              </TableCell>
+              <TableHead className="w-[100px]">#</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ) : (
-            users?.map((user, index) => (
-              <TableRow key={user.encrypted_id}>
-                <TableCell className="font-medium">{index + 1}</TableCell>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell className="text-right space-x-0">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => openEditDialog(user)}
-                  >
-                    <Edit className="mr-1 w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-red-500"
-                    onClick={() => openDeleteDialog(user)}
-                  >
-                    <Trash className="mr-1 w-4 h-4" />
-                  </Button>
+          </TableHeader>
+          <TableBody>
+            {isPending ? (
+              <TableRow>
+                <TableCell colSpan={4}>
+                  <SkeletonLoader />
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              users?.map((user, index) => (
+                <TableRow key={user.encrypted_id}>
+                  <TableCell className="font-medium">{index + 1}</TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell className="text-right space-x-0">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => openEditDialog(user)}
+                    >
+                      <Edit className="mr-1 w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-500"
+                      onClick={() => openDeleteDialog(user)}
+                    >
+                      <Trash className="mr-1 w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </section>
   );
 }
