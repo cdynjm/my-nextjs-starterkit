@@ -62,7 +62,10 @@ export default function UsersPage() {
     return () => setTitle("");
   }, [setTitle]);
 
-  const graphQLClient = getGraphQLClient("/graphql/admin/users/", session?.token);
+  const graphQLClient = getGraphQLClient(
+    "/graphql/admin/users/",
+    session?.token
+  );
 
   const fetchUsers = async (): Promise<User[]> => {
     const data = await graphQLClient.request<{ getUsers: User[] }>(gql`
@@ -100,10 +103,11 @@ export default function UsersPage() {
   const onCreateSubmit: SubmitHandler<CreateUserForm> = async (data) => {
     try {
       const mutation = gql`
-        mutation ($name: String, $email: String) {
-          createUser(name: $name, email: $email) {
+        mutation ($name: String, $email: String, $password: String) {
+          createUser(name: $name, email: $email, password: $password) {
             name
             email
+            password
           }
         }
       `;
@@ -111,6 +115,7 @@ export default function UsersPage() {
       await graphQLClient.request(mutation, {
         name: data.name,
         email: data.email,
+        password: data.password,
       });
 
       resetCreateForm();
@@ -151,7 +156,7 @@ export default function UsersPage() {
   const onUpdateSubmit: SubmitHandler<UpdateUserForm> = async (data) => {
     if (!editUser) return;
     try {
-     const mutation = gql`
+      const mutation = gql`
         mutation ($encrypted_id: String, $name: String, $email: String) {
           updateUser(encrypted_id: $encrypted_id, name: $name, email: $email) {
             encrypted_id

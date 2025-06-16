@@ -5,6 +5,7 @@ import { usersTable } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { gql } from "graphql-request";
 import { encrypt, decrypt, generateKey } from "@/lib/crypto";
+import bcrypt from "bcrypt";
 
 const schema = buildSchema(gql`
   #types
@@ -13,6 +14,7 @@ const schema = buildSchema(gql`
     encrypted_id: String
     name: String
     email: String
+    password: String
     role: Int
     created_at: String
     updated_at: String
@@ -25,14 +27,13 @@ const schema = buildSchema(gql`
 
   #mutations
   type Mutation {
-    createUser(name: String, email: String): User
+    createUser(name: String, email: String, password: String): User
     updateUser(encrypted_id: String, name: String, email: String): User
     deleteUser(encrypted_id: String): User
   }
 `);
 
 const rootValue = {
-
   getUsers: async () => {
     const key = await generateKey();
     const users = await db.select().from(usersTable);
@@ -45,8 +46,19 @@ const rootValue = {
     );
   },
 
-  createUser: async ({ name, email }: { name: string; email: string }) => {
-    await db.insert(usersTable).values({ name, email });
+  createUser: async ({
+    name,
+    email,
+    password,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db
+      .insert(usersTable)
+      .values({ name, email, password: hashedPassword, role: 1 });
   },
 
   updateUser: async ({
@@ -74,7 +86,6 @@ const rootValue = {
     await db.delete(usersTable).where(eq(usersTable.id, Number(decryptedID)));
     return true;
   },
-
 };
 
 export async function POST(req: NextRequest) {
