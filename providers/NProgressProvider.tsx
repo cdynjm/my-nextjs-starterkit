@@ -7,8 +7,8 @@ import "@/app/styles/nprogress.css";
 
 NProgress.configure({
   showSpinner: false,
-  trickleSpeed: 200,
-  speed: 500,        
+  trickleSpeed: 100,
+  speed: 100,        
   minimum: 0.1,      
 });
 

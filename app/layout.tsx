@@ -31,7 +31,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <link rel="shortcut icon" href="/favicon.png" type="image/png" />
+      <link rel="shortcut icon" href="/nextjs.png" type="image/png" />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}>
         <Providers session={session}>
           <NProgressProvider />

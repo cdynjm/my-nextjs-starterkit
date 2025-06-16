@@ -1,11 +1,9 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
-
+import {Home, Inbox, Search, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -20,65 +18,88 @@ import {
   DropdownMenuItem,
 } from "@radix-ui/react-dropdown-menu";
 
-// Menu items.
-const items = [
+import Link from "next/link";
+import Image from "next/image";
+import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
+
+// Admin and User menu items
+const adminItems = [
+  { title: "Home", url: "/admin/dashboard", icon: Home },
+  { title: "Users", url: "/admin/users", icon: Users },
+];
+
+const userItems = [
+  { title: "Home", url: "/", icon: Home },
+  { title: "Inbox", url: "/inbox", icon: Inbox },
+  { title: "Search", url: "/search", icon: Search },
+];
+
+const header = [
   {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    title: "Sample App",
+    subTitle: "NextJS Starter Kit",
+    url: "/",
+    image: "/nextjs.png",
   },
 ];
 
 export function AppSidebar() {
+  const { data: session } = useSession();
+  const pathname = usePathname(); // get current path
+  const role = session?.user?.role ?? 2;
+  const menuItems = role === 1 ? adminItems : userItems;
+
   return (
     <Sidebar variant="sidebar" collapsible="icon" className="border-transparent">
-      <SidebarHeader></SidebarHeader>
+      <SidebarHeader>
+        <SidebarMenu>
+          {header.map((head) => (
+            <SidebarMenuItem key={head.title}>
+              <SidebarMenuButton asChild>
+                <Link href={head.url} className="mt-3 flex items-center gap-2">
+                  <Image src={head.image} width={35} height={35} alt="Logo" />
+                  <div className="ml-1">
+                    <div className="font-bold">{head.title}</div>
+                    <small>{head.subTitle}</small>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarHeader>
+       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {menuItems.map((item) => {
+                const isActive = pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title} className={isActive ? "bg-gray-200 text-gray-700 rounded-sm" : ""}>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.url} className={`flex items-center gap-2 ${isActive ? "font-semibold" : ""}`}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> Username
+                  <User2 />
+                  {session?.user?.name ?? "Username"}
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -93,7 +114,10 @@ export function AppSidebar() {
                 <DropdownMenuItem className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer">
                   Billing
                 </DropdownMenuItem>
-                <DropdownMenuItem className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer">
+                <DropdownMenuItem
+                  className="px-3 py-2 rounded hover:bg-gray-100 cursor-pointer"
+                  onClick={() => signOut()}
+                >
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -1,20 +1,61 @@
 "use client";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { signOut, useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { UserCircle2 } from "lucide-react";
+import { usePageTitle } from "./PageTitleContext";
 
 export function AppTopbar() {
+  const { data: session } = useSession();
+   const { title } = usePageTitle();
+
   return (
     <header className="w-full h-16 px-4 flex items-center justify-between bg-white border-b rounded-t-md">
-      <div className="flex items-center gap-4">
-        {/* 👇 Sidebar toggle button */}
+      <div className="flex items-center gap-1">
+        {/* Sidebar toggle button */}
         <SidebarTrigger />
-        <span className="text-xl font-semibold">My App</span>
+        <span className="text-[16px] font-semibold mb-[2px]">{title}</span>
       </div>
 
-      <div>
-        {/* User info / menu */}
-        <button className="text-sm text-gray-700">Logout</button>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-2 text-sm text-gray-700 hover:text-black focus:outline-none">
+            <UserCircle2 className="w-5 h-5" />
+            <span>{session?.user?.name || "Profile"}</span>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40 mt-2">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="cursor-pointer"
+          >
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </header>
   );
 }
