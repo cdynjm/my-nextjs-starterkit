@@ -35,6 +35,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 type CreateUserForm = {
   name: string;
@@ -49,8 +50,8 @@ type UpdateUserForm = {
 };
 
 type DeleteUserForm = {
-    encryptedID: string;
-}
+  encryptedID: string;
+};
 
 export default function UsersPage() {
   const { data: session } = useSession();
@@ -85,7 +86,7 @@ export default function UsersPage() {
     queryFn: fetchUsers,
   });
 
-const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
 
@@ -102,75 +103,104 @@ const [isCreateOpen, setIsCreateOpen] = useState(false);
       resetCreateForm();
       setIsCreateOpen(false);
       refetch();
+
+      toast("Create successfully", {
+        description: "User information has been created",
+        position: "top-right",
+        action: {
+          label: "Close",
+          onClick: () => {},
+        },
+      });
+
     } catch (error) {
       console.error("Create user failed", error);
     }
   };
 
-const {
-  register: registerUpdate,
-  handleSubmit: handleUpdateSubmit,
-  reset: resetUpdateForm,
-  setValue: setUpdateValue, 
-  formState: { errors: updateErrors },
-} = useForm<UpdateUserForm>();
+  const {
+    register: registerUpdate,
+    handleSubmit: handleUpdateSubmit,
+    reset: resetUpdateForm,
+    setValue: setUpdateValue,
+    formState: { errors: updateErrors },
+  } = useForm<UpdateUserForm>();
 
-useEffect(() => {
-  if (editUser) {
-    setUpdateValue("encryptedID", editUser.encrypted_id);
-    setUpdateValue("name", editUser.name);
-    setUpdateValue("email", editUser.email);
-  } else {
-    resetUpdateForm();
-  }
-}, [editUser, setUpdateValue, resetUpdateForm]);
+  useEffect(() => {
+    if (editUser) {
+      setUpdateValue("encryptedID", editUser.encrypted_id);
+      setUpdateValue("name", editUser.name);
+      setUpdateValue("email", editUser.email);
+    } else {
+      resetUpdateForm();
+    }
+  }, [editUser, setUpdateValue, resetUpdateForm]);
 
-const onUpdateSubmit: SubmitHandler<UpdateUserForm> = async (data) => {
-  if (!editUser) return;
-  try {
-    await axios.patch(`/api/admin/users`, data);
-    resetUpdateForm();
-    setEditUser(null);
-    refetch();
-  } catch (error) {
-    console.error("Update user failed", error);
-  }
-};
+  const onUpdateSubmit: SubmitHandler<UpdateUserForm> = async (data) => {
+    if (!editUser) return;
+    try {
+      await axios.patch(`/api/admin/users`, data);
+      resetUpdateForm();
+      setEditUser(null);
+      refetch();
 
-const openEditDialog = (user: User) => {
-  setEditUser(user);
-};
+      toast("Updated successfully", {
+        description: "User information has been updated",
+        position: "top-right",
+        action: {
+          label: "Close",
+          onClick: () => {},
+        },
+      });
 
-const {
-  handleSubmit: handleDeleteSubmit,
-  reset: resetDeleteForm,
-  setValue: setDeleteValue, 
-} = useForm<DeleteUserForm>();
+    } catch (error) {
+      console.error("Update user failed", error);
+    }
+  };
 
-useEffect(() => {
-  if (deleteUser) {
-    setDeleteValue("encryptedID", deleteUser.encrypted_id);
-  } else {
-    resetDeleteForm();
-  }
-}, [deleteUser, setDeleteValue, resetDeleteForm]);
+  const openEditDialog = (user: User) => {
+    setEditUser(user);
+  };
 
-const onDeleteSubmit: SubmitHandler<DeleteUserForm> = async (data) => {
-  if (!deleteUser) return;
-  try {
-    await axios.delete(`/api/admin/users`, { data }); 
-    resetDeleteForm();
-    setDeleteUser(null);
-    refetch();
-  } catch (error) {
-    console.error("Delete user failed", error);
-  }
-};
+  const {
+    handleSubmit: handleDeleteSubmit,
+    reset: resetDeleteForm,
+    setValue: setDeleteValue,
+  } = useForm<DeleteUserForm>();
 
-const openDeleteDialog = (user: User) => {
-  setDeleteUser(user);
-};
+  useEffect(() => {
+    if (deleteUser) {
+      setDeleteValue("encryptedID", deleteUser.encrypted_id);
+    } else {
+      resetDeleteForm();
+    }
+  }, [deleteUser, setDeleteValue, resetDeleteForm]);
 
+  const onDeleteSubmit: SubmitHandler<DeleteUserForm> = async (data) => {
+    if (!deleteUser) return;
+    try {
+      await axios.delete(`/api/admin/users`, { data });
+      resetDeleteForm();
+      setDeleteUser(null);
+      refetch();
+
+      toast("Deleted successfully", {
+        description: "User information has been deleted",
+        position: "top-right",
+        action: {
+          label: "Close",
+          onClick: () => {},
+        },
+      });
+
+    } catch (error) {
+      console.error("Delete user failed", error);
+    }
+  };
+
+  const openDeleteDialog = (user: User) => {
+    setDeleteUser(user);
+  };
 
   return (
     <section className="p-4">
@@ -329,7 +359,8 @@ const openDeleteDialog = (user: User) => {
             <DialogHeader>
               <DialogTitle>Delete User</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete user? This process cannot be undone.
+                Are you sure you want to delete user? This process cannot be
+                undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="pt-4">
@@ -344,7 +375,9 @@ const openDeleteDialog = (user: User) => {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" variant="destructive">Delete</Button>
+              <Button type="submit" variant="destructive">
+                Delete
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

@@ -28,6 +28,8 @@ const schema = buildSchema(`
     name: String
     email: String
     role: Int
+    created_at: String
+    updated_at: String
   }
 
   type Query {

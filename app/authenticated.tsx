@@ -5,8 +5,13 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 import { PageTitleProvider } from "@/components/PageTitleContext";
+import { Toaster } from "sonner";
 
-export function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+export function AuthenticatedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { data: session } = useSession();
 
   return (
@@ -17,7 +22,8 @@ export function AuthenticatedLayout({ children }: { children: React.ReactNode })
           <div className="flex flex-col w-full bg-white m-2 shadow rounded-md">
             <PageTitleProvider>
               <AppTopbar />
-            <main className="flex-1">{children}</main>
+              <main className="flex-1">{children}</main>
+              <Toaster />
             </PageTitleProvider>
           </div>
         </>
