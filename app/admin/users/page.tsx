@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { usePageTitle } from "@/components/page-title-context";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { upload } from '@vercel/blob/client';
 
 import { useQuery } from "@tanstack/react-query";
 import { getGraphQLClient } from "@/lib/graphql-client";
@@ -100,13 +101,11 @@ export default function UsersPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadImage = async (file: File) => {
-    const res = await fetch(`/api/admin/upload?filename=${file.name}`, {
-      method: "POST",
-      body: file,
+    const blob = await upload(file.name, file, {
+      access: 'public',
+      handleUploadUrl: '/api/admin/upload',
     });
-    if (!res.ok) throw new Error("Image upload failed");
-    const data = await res.json();
-    return data.url;
+    return blob.url;
   };
 
   const {
