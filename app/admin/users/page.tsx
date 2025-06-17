@@ -118,7 +118,6 @@ export default function UsersPage() {
 
   const onCreateSubmit: SubmitHandler<CreateUserForm> = async (data) => {
     try {
-
       let imageUrl = "";
       if (selectedFile) {
         imageUrl = await uploadImage(selectedFile);
