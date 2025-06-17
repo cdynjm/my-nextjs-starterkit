@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { usersTable } from "@/lib/db/schema";
 
 export async function POST(req: Request) {
-  const { name, email, password } = await req.json();
+  const { name, email, password, avatar } = await req.json();
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -13,13 +13,9 @@ export async function POST(req: Request) {
     name: name,
     email: email,
     password: hashedPassword,
-    role: 1
+    role: 1,
+    photo: avatar
   });
 
   return NextResponse.json({ success: true });
-}
-
-export async function GET() {
-  const users = await db.select().from(usersTable);
-  return NextResponse.json({ success: true, users });
 }

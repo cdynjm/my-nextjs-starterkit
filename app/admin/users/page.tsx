@@ -9,6 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getGraphQLClient } from "@/lib/graphql-client";
 import { gql } from "graphql-request";
 import { User } from "@/types/user";
+import Image from "next/image";
+import { useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Plus, Edit, Trash, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash, Loader2, UploadCloud } from "lucide-react";
 import { SkeletonLoader } from "@/components/skeleton-loader";
 
 import {
@@ -74,6 +76,7 @@ export default function UsersPage() {
           encrypted_id
           name
           email
+          photo
         }
       }
     `);
@@ -92,6 +95,19 @@ export default function UsersPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadImage = async (file: File) => {
+    const res = await fetch(`/api/admin/upload?filename=${file.name}`, {
+      method: "POST",
+      body: file,
+    });
+    if (!res.ok) throw new Error("Image upload failed");
+    const data = await res.json();
+    return data.url;
+  };
 
   const {
     register: registerCreate,
@@ -100,24 +116,12 @@ export default function UsersPage() {
     formState: { errors: createErrors, isSubmitting: isCreateProcessing },
   } = useForm<CreateUserForm>();
 
-  const [avatar, setAvatar] = useState<File | null>(null);
-
   const onCreateSubmit: SubmitHandler<CreateUserForm> = async (data) => {
     try {
-      let avatarUrl = null;
 
-      if (avatar) {
-        const formData = new FormData();
-        formData.append("avatar", avatar);
-
-        const uploadRes = await fetch("/api/admin/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const uploadData = await uploadRes.json();
-        console.log(uploadData.url);
-        avatarUrl = uploadData.url;
+      let imageUrl = "";
+      if (selectedFile) {
+        imageUrl = await uploadImage(selectedFile);
       }
 
       const mutation = gql`
@@ -145,12 +149,12 @@ export default function UsersPage() {
         name: data.name,
         email: data.email,
         password: data.password,
-        photo: avatarUrl,
+        photo: imageUrl,
       });
 
       resetCreateForm();
-      setAvatar(null);
       setIsCreateOpen(false);
+      setSelectedFile(null);
       refetch();
 
       toast("Created successfully", {
@@ -294,6 +298,45 @@ export default function UsersPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 mt-4">
+              {/* Avatar Upload */}
+              <div className="grid gap-2">
+                <Label htmlFor="avatar">Profile Image</Label>
+                <div
+                  className="flex items-center gap-4 cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {preview ? (
+                    <Image
+                      src={preview}
+                      alt="Preview"
+                      width={48}
+                      height={48}
+                      className="rounded-full border"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 border rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                      <UploadCloud size={20} />
+                    </div>
+                  )}
+                  <span className="text-sm text-gray-600 text-wrap">
+                    {selectedFile ? "Image Preview" : "Click to choose image"}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedFile(file);
+                      setPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+              </div>
+
               <div className="grid gap-3">
                 <Label htmlFor="create-name">Name</Label>
                 <Input
@@ -339,15 +382,6 @@ export default function UsersPage() {
                     {createErrors.password.message}
                   </p>
                 )}
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="create-avatar">Profile Photo</Label>
-                <Input
-                  id="create-avatar"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setAvatar(e.target.files?.[0] || null)}
-                />
               </div>
             </div>
 
@@ -531,7 +565,25 @@ export default function UsersPage() {
               users?.map((user, index) => (
                 <TableRow key={user.encrypted_id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>{user.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {user.photo ? (
+                        <Image
+                          src={user.photo}
+                          alt={user.name}
+                          width={50}
+                          height={50}
+                          className="rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-[50px] h-[50px] rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-500">
+                          No Photo
+                        </div>
+                      )}
+
+                      {user.name}
+                    </div>
+                  </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell className="text-right space-x-0">
                     <Button
