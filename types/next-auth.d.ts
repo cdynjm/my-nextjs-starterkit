@@ -9,13 +9,14 @@ declare module "next-auth" {
       email: string;
       role: number;
       created_at: string;
-      updated: string;
+      updated_at: string;
     } & DefaultSession["user"];
     token: string;
   }
 
   interface User extends DefaultUser {
     role: number;
+    created_at: string
   }
 }
 
@@ -24,5 +25,6 @@ declare module "next-auth/jwt" {
     id: string;
     role: number;
     accessToken: string;
+    created_at: string
   }
 }

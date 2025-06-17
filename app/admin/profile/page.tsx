@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useSession } from "next-auth/react";
+import { useSession, getSession } from "next-auth/react";
 
 import { usePageTitle } from "@/components/page-title-context";
 import { getGraphQLClient } from "@/lib/graphql-client";
@@ -42,18 +42,26 @@ export default function ProfilePage() {
   } = useForm<UpdateUserForm>();
 
   useEffect(() => {
-    
-      setValue("encryptedID", session?.user.id ?? "");
-      setValue("name", session?.user.name ?? "");
-      setValue("email", session?.user.email ?? "");
-    
+    setValue("encryptedID", session?.user.id ?? "");
+    setValue("name", session?.user.name ?? "");
+    setValue("email", session?.user.email ?? "");
   }, [setValue, session]);
 
   const onUpdateSubmit: SubmitHandler<UpdateUserForm> = async (data) => {
     try {
       const mutation = gql`
-        mutation UpdateProfile($encrypted_id: String, $name: String!, $email: String!, $password: String) {
-          updateProfile(encrypted_id: $encrypted_id, name: $name, email: $email, password: $password) {
+        mutation (
+          $encrypted_id: String
+          $name: String!
+          $email: String!
+          $password: String
+        ) {
+          updateProfile(
+            encrypted_id: $encrypted_id
+            name: $name
+            email: $email
+            password: $password
+          ) {
             encrypted_id
             name
             email
@@ -69,14 +77,22 @@ export default function ProfilePage() {
         password: data.password || undefined,
       });
 
+      await getSession();
+
       toast("Updated successfully", {
-        description: "User information has been updated",
+        description:
+          "User information has been updated. The page will reload to refresh your session.",
         position: "top-right",
         action: {
           label: "Close",
           onClick: () => {},
         },
       });
+
+      // Reload the page after 2 seconds
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error("Update user failed", error);
     }
@@ -95,7 +111,9 @@ export default function ProfilePage() {
         <input type="hidden" {...register("encryptedID")} />
 
         <div>
-          <Label htmlFor="name" className="mb-2">Name</Label>
+          <Label htmlFor="name" className="mb-2">
+            Name
+          </Label>
           <Input
             id="name"
             className="mb-2"
@@ -108,7 +126,9 @@ export default function ProfilePage() {
         </div>
 
         <div>
-          <Label htmlFor="email" className="mb-2">Email</Label>
+          <Label htmlFor="email" className="mb-2">
+            Email
+          </Label>
           <Input
             id="email"
             type="email"
@@ -122,7 +142,9 @@ export default function ProfilePage() {
         </div>
 
         <div>
-          <Label htmlFor="password" className="mb-2">Password</Label>
+          <Label htmlFor="password" className="mb-2">
+            Password
+          </Label>
           <Input
             id="password"
             className="mb-2"
