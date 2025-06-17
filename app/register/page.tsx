@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, UploadCloud } from "lucide-react";
+import { upload } from "@vercel/blob/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -72,13 +73,11 @@ export default function RegisterPage() {
   };
 
   const uploadImage = async (file: File) => {
-    const res = await fetch(`/api/admin/upload?filename=${file.name}`, {
-      method: "POST",
-      body: file,
+    const blob = await upload(file.name, file, {
+      access: 'public',
+      handleUploadUrl: '/api/guest/upload',
     });
-    if (!res.ok) throw new Error("Image upload failed");
-    const data = await res.json();
-    return data.url;
+    return blob.url;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
