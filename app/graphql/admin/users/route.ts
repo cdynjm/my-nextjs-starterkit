@@ -24,6 +24,7 @@ const schema = buildSchema(gql`
   #queries
   type Query {
     getUsers: [User]
+    getUserInfo(encrypted_id: String): User
   }
 
   #mutations
@@ -45,6 +46,14 @@ const rootValue = {
         return { ...user, encrypted_id: encryptedId };
       })
     );
+  },
+
+  getUserInfo: async({encrypted_id}: {encrypted_id: string}) => {
+    const key = await generateKey();
+    const decryptedID = await decrypt(encrypted_id, key);
+    const user = await db.select().from(usersTable).where(eq(usersTable.id, Number(decryptedID))).limit(1);
+
+    return user[0];
   },
 
   createUser: async ({

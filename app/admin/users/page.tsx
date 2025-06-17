@@ -5,6 +5,7 @@ import { usePageTitle } from "@/components/page-title-context";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { upload } from '@vercel/blob/client';
+import Link from "next/link";
 
 import { useQuery } from "@tanstack/react-query";
 import { getGraphQLClient } from "@/lib/graphql-client";
@@ -564,15 +565,18 @@ export default function UsersPage() {
                 <TableRow key={user.encrypted_id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <Link href={`/admin/users/${encodeURIComponent(user.encrypted_id)}`}>
+                      <div className="flex items-center gap-2">
                       {user.photo ? (
+                        <div className="w-10 h-10 relative">
                         <Image
                           src={user.photo}
                           alt={user.name}
-                          width={50}
-                          height={50}
-                          className="rounded-full object-cover"
+                          fill
+                          className="rounded-full object-cover border"
+                          draggable="false"
                         />
+                        </div>
                       ) : (
                         <div className="w-[50px] h-[50px] rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-500">
                           No Photo
@@ -581,6 +585,7 @@ export default function UsersPage() {
 
                       {user.name}
                     </div>
+                    </Link>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell className="text-right space-x-0">
