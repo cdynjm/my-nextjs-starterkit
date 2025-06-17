@@ -7,6 +7,7 @@ export const usersTable = mysqlTable('users', {
   email: varchar({ length: 255 }).unique(),
   password: varchar({ length: 255 }),
   role: int(),
+  photo: varchar({length: 255}),
   created_at: datetime({ mode: 'string', fsp: 3 }).default(sql`CURRENT_TIMESTAMP(3)`),
   updated_at: datetime({ mode: 'string', fsp: 3 })
     .default(sql`CURRENT_TIMESTAMP(3)`)

@@ -16,6 +16,7 @@ const schema = buildSchema(gql`
     email: String
     password: String
     role: Int
+    photo: String
     created_at: String
     updated_at: String
   }
@@ -27,7 +28,7 @@ const schema = buildSchema(gql`
 
   #mutations
   type Mutation {
-    createUser(name: String, email: String, password: String): User
+    createUser(name: String, email: String, password: String, photo: String): User
     updateUser(encrypted_id: String, name: String, email: String): User
     deleteUser(encrypted_id: String): User
   }
@@ -50,15 +51,17 @@ const rootValue = {
     name,
     email,
     password,
+    photo
   }: {
     name: string;
     email: string;
     password: string;
+    photo: string;
   }) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     await db
       .insert(usersTable)
-      .values({ name, email, password: hashedPassword, role: 1 });
+      .values({ name, email, password: hashedPassword, photo, role: 1 });
   },
 
   updateUser: async ({

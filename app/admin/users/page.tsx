@@ -100,14 +100,43 @@ export default function UsersPage() {
     formState: { errors: createErrors, isSubmitting: isCreateProcessing },
   } = useForm<CreateUserForm>();
 
+  const [avatar, setAvatar] = useState<File | null>(null);
+
   const onCreateSubmit: SubmitHandler<CreateUserForm> = async (data) => {
     try {
+      let avatarUrl = null;
+
+      if (avatar) {
+        const formData = new FormData();
+        formData.append("avatar", avatar);
+
+        const uploadRes = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        console.log(uploadData.url);
+        avatarUrl = uploadData.url;
+      }
+
       const mutation = gql`
-        mutation ($name: String, $email: String, $password: String) {
-          createUser(name: $name, email: $email, password: $password) {
+        mutation (
+          $name: String
+          $email: String
+          $password: String
+          $photo: String
+        ) {
+          createUser(
+            name: $name
+            email: $email
+            password: $password
+            photo: $photo
+          ) {
             name
             email
             password
+            photo
           }
         }
       `;
@@ -116,14 +145,16 @@ export default function UsersPage() {
         name: data.name,
         email: data.email,
         password: data.password,
+        photo: avatarUrl,
       });
 
       resetCreateForm();
+      setAvatar(null);
       setIsCreateOpen(false);
       refetch();
 
       toast("Created successfully", {
-        description: "User information has been created",
+        description: "User has been created with avatar",
         position: "top-right",
         action: {
           label: "Close",
@@ -309,7 +340,17 @@ export default function UsersPage() {
                   </p>
                 )}
               </div>
+              <div className="grid gap-3">
+                <Label htmlFor="create-avatar">Profile Photo</Label>
+                <Input
+                  id="create-avatar"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+                />
+              </div>
             </div>
+
             <DialogFooter className="pt-4">
               <DialogClose asChild>
                 <Button
