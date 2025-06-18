@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 import { PageTitleProvider } from "@/components/page-title-context";
 import { Toaster } from "sonner";
+import NavbarFix from "@/components/navbar-fix";
 
 export function AuthenticatedLayout({
   children,
@@ -19,10 +20,11 @@ export function AuthenticatedLayout({
       {session ? (
         <>
           <AppSidebar />
-          <div className="flex flex-col w-full bg-white m-2 shadow rounded-md">
+          <div className="flex flex-col w-full bg-white md:m-2 shadow rounded-md">
             <PageTitleProvider>
               <AppTopbar />
               <main className="flex-1">{children}</main>
+              <NavbarFix />
               <Toaster />
             </PageTitleProvider>
           </div>

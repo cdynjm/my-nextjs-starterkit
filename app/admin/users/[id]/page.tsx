@@ -8,7 +8,7 @@ import { gql } from "graphql-request";
 import { User } from "@/types/user";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
-import { SkeletonLoader } from "@/components/skeleton-loader";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 export default function UserInfoPage({
   params,

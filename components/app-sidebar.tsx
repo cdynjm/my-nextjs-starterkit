@@ -17,8 +17,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@radix-ui/react-dropdown-menu";
-
+import { NProgressLink } from "./ui/nprogress-link";
 import Link from "next/link";
+
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -79,10 +80,10 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title} className={isActive ? "bg-gray-200 text-gray-700 rounded-sm" : ""}>
                     <SidebarMenuButton asChild>
-                      <Link href={item.url} className={`flex items-center gap-2 ${isActive ? "font-semibold" : ""}`}>
+                      <NProgressLink href={item.url} className={`flex items-center gap-2 ${isActive ? "font-semibold" : ""}`}>
                         <item.icon />
                         <span>{item.title}</span>
-                      </Link>
+                      </NProgressLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -109,7 +110,7 @@ export function AppSidebar() {
                 className="bg-white rounded-md shadow-md p-2 w-48"
               >
                 <DropdownMenuItem className="px-3 py-2 text-sm rounded hover:bg-gray-100 cursor-pointer">
-                 <Link href="/admin/profile">Profile</Link>
+                 <NProgressLink href="/admin/profile">Profile</NProgressLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserCircle2 } from "lucide-react";
 import { usePageTitle } from "./page-title-context";
-import Link from "next/link";
+import { NProgressLink } from "./ui/nprogress-link";
 
 export function AppTopbar() {
   const { data: session } = useSession();
@@ -52,7 +52,7 @@ export function AppTopbar() {
           <DropdownMenuItem
             className="cursor-pointer"
           >
-            <Link href="/admin/profile">Profile</Link>
+            <NProgressLink href="/admin/profile">Profile</NProgressLink>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => signOut({ callbackUrl: "/" })}

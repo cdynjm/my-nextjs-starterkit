@@ -7,7 +7,7 @@ import "@/app/styles/nprogress.css";
 
 NProgress.configure({
   showSpinner: false,
-  trickleSpeed: 100,
+  trickleSpeed: 30,
   speed: 100,        
   minimum: 0.1,      
 });
@@ -21,7 +21,7 @@ export function NProgressProvider() {
     NProgress.start();
     const timeout = setTimeout(() => {
       NProgress.done();
-    }, 300);
+    }, 200);
 
     return () => clearTimeout(timeout);
   }, [pathname, search]);

@@ -5,7 +5,7 @@ import { usePageTitle } from "@/components/page-title-context";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { upload } from '@vercel/blob/client';
-import Link from "next/link";
+import { NProgressLink } from "@/components/ui/nprogress-link";
 
 import { useQuery } from "@tanstack/react-query";
 import { getGraphQLClient } from "@/lib/graphql-client";
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 
 import { Plus, Edit, Trash, Loader2, UploadCloud } from "lucide-react";
-import { SkeletonLoader } from "@/components/skeleton-loader";
+import { SkeletonLoader } from "@/components/ui/skeleton-loader";
 
 import {
   Dialog,
@@ -565,7 +565,7 @@ export default function UsersPage() {
                 <TableRow key={user.encrypted_id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>
-                    <Link href={`/admin/users/${encodeURIComponent(user.encrypted_id)}`}>
+                    <NProgressLink href={`/admin/users/${encodeURIComponent(user.encrypted_id)}`}>
                       <div className="flex items-center gap-2">
                       {user.photo ? (
                         <div className="w-10 h-10 relative">
@@ -585,7 +585,7 @@ export default function UsersPage() {
 
                       {user.name}
                     </div>
-                    </Link>
+                    </NProgressLink>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell className="text-right space-x-0">
