@@ -4,18 +4,28 @@ import { usersTable } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { encrypt, decrypt, generateKey } from "@/lib/crypto";
 import bcrypt from "bcrypt";
+import { sql } from "drizzle-orm";
 
 export const userResolver = {
-  getUsers: async () => {
+  getUsers: async ({ limit, offset }: { limit: number; offset: number }) => {
     const key = await generateKey();
-    const users = await db.select().from(usersTable);
 
-    return Promise.all(
+    const [users, totalCountResult] = await Promise.all([
+      db.select().from(usersTable).limit(limit).offset(offset),
+      db.select({ count: sql<number>`COUNT(*)` }).from(usersTable),
+    ]);
+
+    const encryptedUsers = await Promise.all(
       users.map(async (user) => {
         const encryptedId = await encrypt(user.id.toString(), key);
         return { ...user, encrypted_id: encryptedId };
       })
     );
+
+    return {
+      users: encryptedUsers,
+      totalCount: Number(totalCountResult[0].count),
+    };
   },
 
   getUserInfo: async ({ encrypted_id }: { encrypted_id: string }) => {

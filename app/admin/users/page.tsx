@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { usePageTitle } from "@/components/page-title-context";
 import { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { upload } from '@vercel/blob/client';
+import { upload } from "@vercel/blob/client";
 import { NProgressLink } from "@/components/ui/nprogress-link";
 
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +13,8 @@ import { gql } from "graphql-request";
 import { User } from "@/types/user";
 import Image from "next/image";
 import { useRef } from "react";
+
+import { SmartPagination } from "@/components/smart-pagination";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -71,28 +73,46 @@ export default function UsersPage() {
     session?.token
   );
 
-  const fetchUsers = async (): Promise<User[]> => {
-    const data = await graphQLClient.request<{ getUsers: User[] }>(gql`
-      query {
-        getUsers {
-          encrypted_id
-          name
-          email
-          photo
+  const fetchUsers = async ({
+    queryKey,
+  }: {
+    queryKey: [string, number, number];
+  }) => {
+    const [, limit, offset] = queryKey;
+
+    const data = await graphQLClient.request<{
+      getUsers: { users: User[]; totalCount: number };
+    }>(
+      gql`
+        query ($limit: Int, $offset: Int) {
+          getUsers(limit: $limit, offset: $offset) {
+            users {
+              encrypted_id
+              name
+              email
+              photo
+            }
+            totalCount
+          }
         }
-      }
-    `);
+      `,
+      { limit, offset }
+    );
+
     return data.getUsers;
   };
 
-  const {
-    data: users,
-    isPending,
-    refetch,
-  } = useQuery({
-    queryKey: ["users"],
+  const [page, setPage] = useState(1);
+  const limit = 3;
+  const offset = (page - 1) * limit;
+
+  const { data, isPending, refetch } = useQuery({
+    queryKey: ["users", limit, offset],
     queryFn: fetchUsers,
   });
+
+  const totalCount = data?.totalCount ?? 0;
+  const totalPages = Math.ceil(totalCount / limit);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
@@ -103,8 +123,8 @@ export default function UsersPage() {
 
   const uploadImage = async (file: File) => {
     const blob = await upload(file.name, file, {
-      access: 'public',
-      handleUploadUrl: '/api/admin/upload',
+      access: "public",
+      handleUploadUrl: "/api/admin/upload",
     });
     return blob.url;
   };
@@ -561,30 +581,36 @@ export default function UsersPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              users?.map((user, index) => (
+              data?.users?.map((user, index) => (
                 <TableRow key={user.encrypted_id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>
-                    <NProgressLink href={`/admin/users/${encodeURIComponent(user.encrypted_id)}`}>
+                    <NProgressLink
+                      href={`/admin/users/${encodeURIComponent(
+                        user.encrypted_id
+                      )}`}
+                    >
                       <div className="flex items-center gap-2">
-                      {user.photo ? (
-                        <div className="w-10 h-10 relative">
-                        <Image
-                          src={user.photo}
-                          alt={user.name}
-                          fill
-                          className="rounded-full object-cover border"
-                          draggable="false"
-                        />
-                        </div>
-                      ) : (
-                        <div className="w-[50px] h-[50px] rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-500">
-                          No Photo
-                        </div>
-                      )}
+                        {user.photo ? (
+                          <div className="w-10 h-10 relative">
+                            <Image
+                              src={user.photo}
+                              alt={user.name}
+                              width={100}
+                              height={100}
+                              className="rounded-full object-cover border w-10 h-10 relative"
+                              draggable="false"
+                              priority
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-[9px] text-gray-500">
+                            No Photo
+                          </div>
+                        )}
 
-                      {user.name}
-                    </div>
+                        {user.name}
+                      </div>
                     </NProgressLink>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
@@ -610,6 +636,11 @@ export default function UsersPage() {
             )}
           </TableBody>
         </Table>
+        <SmartPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
     </section>
   );

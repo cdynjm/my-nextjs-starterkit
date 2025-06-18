@@ -19,26 +19,40 @@ const schema = buildSchema(gql`
     updated_at: String
   }
 
+  type PaginatedUsers {
+    users: [User]
+    totalCount: Int
+  }
+
   #queries
   type Query {
-    getUsers: [User]
-    
+    getUsers(limit: Int, offset: Int): PaginatedUsers
     getUserInfo(encrypted_id: String): User
   }
 
   #mutations
   type Mutation {
-    createUser(name: String, email: String, password: String, photo: String): User
+    createUser(
+      name: String
+      email: String
+      password: String
+      photo: String
+    ): User
     updateUser(encrypted_id: String, name: String, email: String): User
     deleteUser(encrypted_id: String): User
 
-    updateProfile(encrypted_id: String, name: String, email: String, password: String): User
+    updateProfile(
+      encrypted_id: String
+      name: String
+      email: String
+      password: String
+    ): User
   }
 `);
 
 const rootValue = {
   ...userResolver,
-  ...profileResolver
+  ...profileResolver,
 };
 
 export async function POST(req: NextRequest) {

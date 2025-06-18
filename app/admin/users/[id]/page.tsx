@@ -65,13 +65,21 @@ export default function UserInfoPage({
           <>
             <div className="bg-white rounded-xl p-6 flex items-center gap-6">
               <div className="w-24 h-24 relative">
-                <Image
-                  src={user?.photo || "/default-avatar.png"}
-                  alt={user?.name || ""}
-                  fill
-                  className="rounded-full object-cover border"
-                  draggable="false"
-                />
+                {user?.photo ? (
+                  <Image
+                    src={user?.photo || ""}
+                    alt={user?.name || ""}
+                    width={100}
+                    height={100}
+                    className="rounded-full object-cover border w-24 h-24 relative"
+                    draggable="false"
+                    priority
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-[13px] text-gray-500">
+                    No Photo
+                  </div>
+                )}
               </div>
 
               <div className="flex-1">
