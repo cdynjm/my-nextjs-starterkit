@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildSchema, graphql as graphqlExec } from "graphql";
 import { gql } from "graphql-request";
 
-import { userResolver } from "../../resolver/admin/userResolver";
-import { profileResolver } from "../../resolver/admin/profileResolver";
+import { userResolver } from "../../resolver/admin/user-resolver";
+import { profileResolver } from "../../resolver/admin/profile-resolver";
 
 const schema = buildSchema(gql`
   #types
