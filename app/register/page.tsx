@@ -92,7 +92,7 @@ export default function RegisterPage() {
         imageUrl = await uploadImage(selectedFile);
       }
 
-      const response = await fetch("/api/register", {
+      const response = await fetch("/api/guest/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, avatar: imageUrl }),

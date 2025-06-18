@@ -30,7 +30,7 @@ export default function ProfilePage() {
   }, [setTitle]);
 
   const graphQLClient = getGraphQLClient(
-    "/graphql/admin/profile/",
+    "/graphql/schema/admin/",
     session?.token
   );
 

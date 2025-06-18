@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSchema, graphql as graphqlExec } from "graphql";
-import { db } from "@/lib/db";
-import { usersTable } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { gql } from "graphql-request";
-import { decrypt, generateKey } from "@/lib/crypto";
-import bcrypt from "bcrypt";
 
 const schema = buildSchema(gql`
   #types
@@ -16,59 +11,15 @@ const schema = buildSchema(gql`
     email: String
     password: String
     role: Int
+    photo: String
     created_at: String
     updated_at: String
   }
 
-  type Query {
-    _empty: String
-    }
-
-  #mutations
-  type Mutation {
-    updateProfile(
-      encrypted_id: String
-      name: String
-      email: String
-      password: String
-    ): User
-  }
 `);
 
 const rootValue = {
-  updateProfile: async ({
-    encrypted_id,
-    name,
-    email,
-    password,
-  }: {
-    encrypted_id: string;
-    name?: string;
-    email?: string;
-    password?: string;
-  }) => {
-    const key = await generateKey();
-    const decryptedID = await decrypt(encrypted_id, key);
-
-    const updateData: Partial<{
-      name: string;
-      email: string;
-      password: string;
-    }> = {};
-    
-     updateData.name = name;
-     updateData.email = email;
-
-    if (password !== undefined && password !== "") {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      updateData.password = hashedPassword;
-    }
-
-    await db
-      .update(usersTable)
-      .set(updateData)
-      .where(eq(usersTable.id, Number(decryptedID)));
-  },
+  
 };
 
 export async function POST(req: NextRequest) {

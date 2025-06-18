@@ -113,7 +113,7 @@ export function AppSidebar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="px-3 py-2 rounded hover:bg-gray-100 text-sm cursor-pointer"
-                  onClick={() => signOut()}
+                  onClick={() => signOut({callbackUrl: "/"})}
                 >
                   Sign out
                 </DropdownMenuItem>
